@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Backend\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TaskController;
 
@@ -14,6 +15,8 @@ use App\Http\Controllers\TaskController;
 |
 */
 
+Route::get('/login',[AuthController::class,'login'])->name('login');
+Route::post('/do-login',[AuthController::class,'doLogin'])->name('do.login');
 
 Route::get('/', [TaskController::class, 'index'])->name('task.index');
 Route::post('/tasks', [TaskController::class, 'store'])->name('task.store');

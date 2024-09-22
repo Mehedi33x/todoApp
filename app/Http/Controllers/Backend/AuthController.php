@@ -17,7 +17,7 @@ class AuthController extends Controller
 
     public function doLogin(Request $request){
         // dd($request->all());
-        // validate the form data
+        // validate the form dataa
         $this->validate($request, [
             'email' =>'required|email',
             'password' => 'required|min:6',

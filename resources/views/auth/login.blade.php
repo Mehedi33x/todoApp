@@ -1,87 +1,125 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="{{ url('auth/admin_login/fonts/icomoon/style.css') }}">
-    <link rel="stylesheet" href="{{ url('auth/admin_login/css/owl.carousel.min.css') }}">
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="{{ url('auth/admin_login/css/bootstrap.min.css') }}">
-    <!-- Style -->
-    <link rel="stylesheet" href="{{ url('auth/admin_login/css/style.css') }}">
-    <title>Login</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="/backend/login/style.css">
+    <link rel="stylesheet" href="http://cdn.bootcss.com/toastr.js/latest/css/toastr.min.css">
+    <style>
+        #toast-container>.toast-error {
+            background-color: #BD362F;
+        }
+
+        .toast-success {
+            background-color: green;
+        }
+
+        .toast-info {
+            background-color: blue;
+        }
+
+        .toast-warning {
+            background-color: yellow;
+        }
+    </style>
 </head>
 <body>
-    <div class="content">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <img src="{{ url('auth/admin_login/images/undraw_remotely_2j6y.svg') }}" alt="Image"
-                        class="img-fluid">
-                </div>
-                <div class="col-md-6 contents">
-                    <div class="row justify-content-center">
-                        <div class="col-md-8">
-                            <div class="mb-1">
-                                <h3>Sign In</h3>
+    <div id="container" class="container {{ request()->routeIs('auth.register') ? 'sign-up' : 'sign-in' }}">
+        <div class="row">
+            <div class="col align-items-center flex-col sign-up">
+                <div class="form-wrapper align-items-center">
+                    <div class="form sign-up">
+                        <form action="{{ route('do.register') }}" method="POST">
+                            @csrf
+                            <div class="input-group">
+                                <i class='bx bxs-user'></i>
+                                <input type="text" name="name" value="{{ old('name') }}" placeholder="Username"
+                                    required>
                             </div>
-                            <form action="{{route('do.login')}}" method="post">
-                                @csrf
-                                <div class="form-group first">
-                                    <label for="username">Email</label>
-                                    <input type="email" name="email" class="form-control" id="username">
-
-                                </div>
-                                <div class="form-group last mb-3">
-                                    <label for="password">Password</label>
-                                    <input type="password" name="password" class="form-control" id="password">
-
-                                </div>
-
-                                <div class="d-flex mb-3 align-items-center">
-                                    <label class="control control--checkbox mb-0"><span class="caption">Remember
-                                            me</span>
-                                        <input type="checkbox" checked="checked" />
-                                        <div class="control__indicator"></div>
-                                    </label>
-                                    <span class="ml-auto"><a href="#" class="forgot-pass">Forgot
-                                            Password</a></span>
-                                </div>
-
-                                <input type="submit" value="Log In" class="btn btn-block btn-primary">
-                                <span class="d-block text-left my-3 text-muted">Not a member?<span><a href="http://" class="ml-4">Sign Up</a></span></span>
-
-                                <span class="d-block text-left my-4 text-muted">&mdash; or login with &mdash;</span>
-
-                                <div class="social-login">
-                                    <a href="#" class="facebook">
-                                        <span class="icon-facebook mr-3"></span>
-                                    </a>
-                                    <a href="#" class="twitter">
-                                        <span class="icon-twitter mr-3"></span>
-                                    </a>
-                                    <a href="#" class="google">
-                                        <span class="icon-google mr-3"></span>
-                                    </a>
-                                </div>
-                            </form>
-                        </div>
+                            <div class="input-group">
+                                <i class='bx bx-mail-send'></i>
+                                <input type="email" name="email" value="{{ old('email') }}" placeholder="Email"
+                                    required>
+                            </div>
+                            <div class="input-group">
+                                <i class='bx bxs-lock-alt'></i>
+                                <input type="password" name="password" value="{{ old('password') }}"
+                                    placeholder="Password" required>
+                            </div>
+                            <div class="input-group">
+                                <i class='bx bxs-lock-alt'></i>
+                                <input type="password" name="confirm_password" value="{{ old('confirm_password') }}"
+                                    placeholder="Confirm password" required>
+                            </div>
+                            <button type="submit">Sign up</button>
+                        </form>
+                        <p>
+                            <span>Already have an account?</span>
+                            <b onclick="toggle()" class="pointer">Sign in here</b>
+                        </p>
                     </div>
-
                 </div>
+            </div>
 
+            <div class="col align-items-center flex-col sign-in">
+                <div class="form-wrapper align-items-center">
+                    <div class="form sign-in">
+                        <form action="{{ route('do.login') }}" method="POST">
+                            @csrf
+                            <div class="input-group">
+                                <i class='bx bxs-user'></i>
+                                <input type="email" name="email" placeholder="Email" required>
+                            </div>
+                            <div class="input-group">
+                                <i class='bx bxs-lock-alt'></i>
+                                <input type="password" name="password" placeholder="Password" required>
+                            </div>
+                            <button type="submit">Sign in</button>
+                        </form>
+                        <p><b>Forgot password?</b></p>
+                        <p>
+                            <span>Don't have an account?</span>
+                            <b onclick="toggle()" class="pointer">Sign up here</b>
+                        </p>
+                    </div>
+                </div>
+                <div class="form-wrapper"></div>
+            </div>
+        </div>
+
+
+        <div class="row content-row">
+            <div class="col align-items-center flex-col">
+                <div class="text sign-in">
+                    <h2>Welcome</h2>
+                </div>
+                <div class="img sign-in"></div>
+            </div>
+
+            <div class="col align-items-center flex-col">
+                <div class="img sign-up"></div>
+                <div class="text sign-up">
+                    <h2>Join with us</h2>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- TOASTR -->
+    <script src="http://cdn.bootcss.com/toastr.js/latest/js/toastr.min.js"></script>
+    {!! Toastr::message() !!}
+    <script>
+        let container = document.getElementById('container');
 
-    <script src="{{ url('auth/admin_login/js/jquery-3.3.1.min.js') }}"></script>
-    <script src="{{ url('auth/admin_login/js/popper.min.js') }}"></script>
-    <script src="{{ url('auth/admin_login/js/bootstrap.min.js') }}"></script>
-    <script src="{{url('auth/admin_login/}js/main.js')}"></script>
+        function toggle() {
+            container.classList.toggle('sign-in');
+            container.classList.toggle('sign-up');
+        }
+    </script>
 </body>
+
 
 </html>

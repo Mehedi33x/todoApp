@@ -3,14 +3,13 @@
     <div class="container mt-5">
         <div class="row">
             <div class="col text-left">
-                <h3>{{$greeting}}</h3>
-                <h6 class="date">{{ now()->format('F j, Y') }}</h6>
-                <h6 id="clock" class="clock"></h6>            </div>
+                @include('components.greetings')
+            </div>
             <div class="col text-center">
                 <h1 class="todo-title">To-Do List</h1>
             </div>
-            <div class="col text-right">
-               
+            <div class="col text-end">
+                @include('components.auth_buttons')
             </div>
         </div>
         <hr>

@@ -12,7 +12,6 @@ class TaskController extends Controller
 {
     public function index()
     {
-
         // function for greetings
         $hour = Carbon::now()->hour;
         // dd($hour);
@@ -27,13 +26,13 @@ class TaskController extends Controller
             $greeting = "Good Evening";
         }
 
-        $tasks = Task::latest()->get();
+        $tasks = Task::where('user_id',auth()->user()->id)->latest()->get();
         return view('tasks.index', compact('tasks', 'greeting'));
     }
 
     public function store(Request $request)
     {
-
+        // dd(auth()->user()->id);
         $validator = Validator::make($request->all(), [
             'title' => 'required',
         ]);
@@ -42,14 +41,21 @@ class TaskController extends Controller
             toastr()->error('Something went wrong');
             return redirect()->back()->withErrors($validator)->withInput();
         }
-
-        $task = Task::create($request->all());
-        if ($task) {
-            toastr()->success('New task created successfully');
-            return redirect()->route('task.index');
+        if (auth()->check()) {
+            $data = $request->all();
+            $data['user_id'] = auth()->user()->id;
+            // dd($data);
+            $task = Task::create($data);
+            if ($task) {
+                toastr()->success('New task created successfully');
+                return redirect()->route('task.index');
+            }
+            toastr()->error('Something went wrong');
+            return redirect()->back();
+        } else {
+            toastr()->error('Something went wrong');
+            return redirect()->back();
         }
-        toastr()->error('Something went wrong');
-        return redirect()->back();
     }
 
     public function update(Request $request, Task $task)

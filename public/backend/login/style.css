@@ -109,7 +109,7 @@ body {
 
 .form p {
     margin: 1rem 0;
-    font-size: .7rem;
+    font-size: .8rem;
 }
 
 .flex-col {
@@ -273,6 +273,16 @@ body {
     transform: translate(100%, 0);
     right: 50%;
 }
+.social-icons {
+    display: flex;
+    justify-content: center; /* Adjust alignment */
+    gap: 15px; /* Add spacing between icons */
+  }
+  
+  .social-icons a {
+    display: inline-block;
+  }
+  
 
 /* RESPONSIVE */
 

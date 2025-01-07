@@ -19,6 +19,15 @@ Route::get('/admin-login', [AuthController::class, 'login'])->name('auth.login')
 Route::get('/register', [AuthController::class, 'register'])->name('auth.register');
 Route::post('/do-register', [AuthController::class, 'doRegister'])->name('do.register');
 Route::post('/do-login', [AuthController::class, 'doLogin'])->name('do.login');
+Route::get('forgot-password', [AuthController::class, 'forgotPassword'])->name('forget.password');
+Route::post('forgot-password', [AuthController::class, 'sendResetLink'])->name('forgot.password.send');
+
+
+// social login
+Route::get('auth/google', [AuthController::class, 'googlePage'])->name('auth.google');
+Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+
+// dashboard
 Route::middleware(['auth'])->group(function () {
     Route::get('/admin-logout', [AuthController::class, 'logout'])->name('auth.logout');
 

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
-use Brian2694\Toastr\Toastr;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -26,7 +25,7 @@ class TaskController extends Controller
             $greeting = "Good Evening";
         }
 
-        $tasks = Task::where('user_id',auth()->user()->id)->latest()->get();
+        $tasks = Task::where('user_id', auth()->user()->id)->latest()->get();
         return view('tasks.index', compact('tasks', 'greeting'));
     }
 
@@ -38,23 +37,18 @@ class TaskController extends Controller
         ]);
 
         if ($validator->fails()) {
-            toastr()->error('Something went wrong');
-            return redirect()->back()->withErrors($validator)->withInput();
+            return redirect()->back()->with('error', 'Something went wrong');
         }
         if (auth()->check()) {
             $data = $request->all();
             $data['user_id'] = auth()->user()->id;
-            // dd($data);
             $task = Task::create($data);
             if ($task) {
-                toastr()->success('New task created successfully');
-                return redirect()->route('task.index');
+                return redirect()->route('task.index')->with('success', 'Your Task has been added');
             }
-            toastr()->error('Something went wrong');
-            return redirect()->back();
+            return redirect()->back()->with('error', 'Something went wrong');
         } else {
-            toastr()->error('Something went wrong');
-            return redirect()->back();
+            return redirect()->back()->with('error', 'Something went wrong');
         }
     }
 
@@ -62,11 +56,9 @@ class TaskController extends Controller
     {
         if ($task) {
             $task->update($request->all());
-            toastr()->success('Task completed successfully');
-            return redirect()->back();
+            return redirect()->back()->with('success', 'Task completed successfully');
         }
-        toastr()->error('Something went wrong');
-        return redirect()->back();
+        return redirect()->back()->with('error', 'Something went wrong');
 
     }
 
@@ -74,10 +66,8 @@ class TaskController extends Controller
     {
         if ($task) {
             $task->delete();
-            toastr()->error('Your task has been deleted');
-            return redirect()->back();
+            return redirect()->back()->with('success','Task deleted successfully');
         }
-        toastr()->error('Something went wrong');
-        return redirect()->back();
+        return redirect()->back()->with('error', 'Something went wrong');
     }
 }

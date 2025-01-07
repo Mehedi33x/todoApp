@@ -12,20 +12,31 @@
 </head>
 
 <body>
-    <div id="container" class="container {{ request()->routeIs('auth.register') ? 'sign-up' : 'sign-in' }}">
+    <div id="" class="container sign-up ">
         <div class="row">
-            @include('auth.signupForm')
-            @include('auth.signinForm')
+            <div class="col align-items-center flex-col sign-up">
+                <div class="form-wrapper align-items-center">
+                    <div class="form sign-up">
+                        <form action="{{ route('forgot.password.send') }}" method="POST">
+                            @csrf
+                            <p><b>Forget your password?</b></p>
+                            <div class="input-group">
+                                <i class='bx bx-mail-send'></i>
+                                <input type="email" name="email" value="{{ old('email') }}" placeholder="Email"
+                                    required>
+                            </div>
+                            
+                            <button type="submit">Reset Password</button>
+                        </form>
+                        
+                    </div>
+                </div>
+            </div>
             
         </div>
         <div class="row content-row">
             <div class="col align-items-center flex-col">
-                <div class="text sign-in">
-                    <h2>Welcome</h2>
-                </div>
-                <div class="img sign-in"></div>
             </div>
-
             <div class="col align-items-center flex-col">
                 <div class="img sign-up"></div>
                 <div class="text sign-up">
@@ -33,18 +44,8 @@
                 </div>
             </div>
         </div>
-        
     </div>
-    
 
-    <script>
-        let container = document.getElementById('container');
-
-        function toggle() {
-            container.classList.toggle('sign-in');
-            container.classList.toggle('sign-up');
-        }
-    </script>
     @if (session('error'))
         <script>
             Swal.fire({

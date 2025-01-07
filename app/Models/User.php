@@ -21,7 +21,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'confirm_password',
+        'google_id',
+        'password_reset_token',
+        'password_reset_expires_at',
     ];
 
     /**
@@ -42,6 +44,5 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
-        'confirm_password'=>'hashed',
     ];
 }

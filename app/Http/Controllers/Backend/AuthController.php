@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers\Backend;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
-use Brian2694\Toastr\Toastr;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Mail\ResetPasswordMail;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -23,13 +27,16 @@ class AuthController extends Controller
             'confirm_password' => 'required|same:password',
         ]);
         if ($validator->fails()) {
-            toastr()->error('Something went wrong');
-            return redirect()->back()->withErrors($validator)->withInput();
+            return redirect()->back()->with('errors', "Invalid credentials");
+            // return redirect()->back()->with('errors', array('message' => $validator));
         } else {
-            $user = User::create($request->all());
-            toastr()->success('User created');
-            session()->flash('success', 'User created   successfully');
-            return redirect()->route('auth.login');
+            $data = $request->only('name', 'email', 'password');
+            $user = User::create($data);
+            if ($user) {
+                return redirect()->route('auth.login')->with('success', 'User created   successfully');
+            } else {
+                return redirect()->back()->with('error', 'Failed to create user');
+            }
         }
     }
     public function login()
@@ -39,26 +46,79 @@ class AuthController extends Controller
 
     public function doLogin(Request $request)
     {
-        // dd($request->all());
-        $this->validate($request, [
+        $validator = Validator::make($request->all(), [
             'email' => 'required|email',
-            'password' => 'required|min:6',
+            'password' => ['required', 'min:6'],
         ]);
-
-        if (auth()->attempt(['email' => $request->email, 'password' => $request->password])) {
-            toastr()->success('Login successful');
-            return to_route('task.index');
-            // return redirect()->intended('');
+        if ($validator->fails()) {
+            return redirect()->back();
         }
-        return redirect()->back()->withInput($request->only('email', 'remember'))
-            ->withErrors(['email' => 'Invalid email or password']);
+        if (auth()->attempt(['email' => $request->email, 'password' => $request->password])) {
+            return to_route('task.index')->with('success', 'Login successful');
+        } else {
+            return redirect()->back()->with('error', 'Invalid email or password');
+        }
     }
 
     public function logout()
     {
-        // dd(auth()->user()->name);
         auth()->logout();
-        toastr()->success('Logged out successfully');
-        return redirect()->route('task.index');
+        return redirect()->route('auth.login')->with('success', 'Logged out successfully');
+    }
+
+    public function forgotPassword()
+    {
+        return view('auth.forgetPassword');
+    }
+    public function sendResetLink(Request $request)
+    {
+        // dd($request->all());
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+        ]);
+        if ($validator->fails()) {
+            return redirect()->back();
+        } else {
+            $user = User::where('email', $request->email)->first();
+            if (!$user) {
+                return redirect()->back()->with('error', 'User not found');
+            } else {
+                // Send reset link
+                $token = Str::random(64);
+                $user->password_reset_token = $token;
+                $user->password_reset_expires_at = now()->addMinutes(5);
+                $user->save();
+                // Send email with link
+                Mail::to($user->email)->send(new ResetPasswordMail($token, $user->email));
+                return redirect()->route('auth.login')->with('success', 'Reset link sent to your email');
+            }
+        }
+    }
+
+    // social login
+    public function googlePage()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function handleGoogleCallback()
+    {
+        $user = Socialite::driver('google')->user();
+        // dd($user);
+        $finduser = User::where('google_id', $user->id)->first();
+        if ($finduser) {
+            Auth::login($finduser);
+            return to_route('task.index')->with('success', 'Login successful');
+        } else {
+            $newUser = User::create([
+                'name' => $user->name,
+                'email' => $user->email,
+                'google_id' => $user->id,
+                'password' => encrypt('123456dummy'),
+            ]);
+            Auth::login($newUser);
+            return to_route('task.index')->with('success', 'Login successful');
+
+        }
     }
 }

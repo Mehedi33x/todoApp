@@ -21,7 +21,10 @@ Route::post('/do-register', [AuthController::class, 'doRegister'])->name('do.reg
 Route::post('/do-login', [AuthController::class, 'doLogin'])->name('do.login');
 Route::get('forgot-password', [AuthController::class, 'forgotPassword'])->name('forget.password');
 Route::post('forgot-password', [AuthController::class, 'sendResetLink'])->name('forgot.password.send');
-
+Route::get('otp-verifcation', [AuthController::class, 'verificationOtp'])->name('verifcation.otp');
+Route::post('verify-otp', [AuthController::class, 'verifyOtp'])->name('verify.otp');
+Route::get('password-reset', [AuthController::class, 'passwordReset'])->name('password.reset');
+Route::post('reset-password', [AuthController::class, 'resetPassword'])->name('reset.password');
 
 // social login
 Route::get('auth/google', [AuthController::class, 'googlePage'])->name('auth.google');

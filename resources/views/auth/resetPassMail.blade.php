@@ -476,7 +476,7 @@
                                                             <tr>
                                                                 <td align="center">
                                                                     <p class="f-fallback button button--green">
-                                                                        {{ $token }}</p>
+                                                                        {{ $otp }}</p>
                                                                 </td>
                                                             </tr>
                                                         </table>

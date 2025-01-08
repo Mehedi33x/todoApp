@@ -15,11 +15,11 @@ class ResetPasswordMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public $token;
+    public $otp;
     public $email;
-    public function __construct($token, $email)
+    public function __construct($otp, $email)
     {
-        $this->token = $token;
+        $this->otp = $otp;
         $this->email = $email;
     }
 
@@ -46,7 +46,7 @@ class ResetPasswordMail extends Mailable
     public function build()
     {
         return $this->view('auth.resetPassMail')
-            ->with(['token' => $this->token, 'email' => $this->email]);
+            ->with(['otp' => $this->otp, 'email' => $this->email]);
 
     }
 }

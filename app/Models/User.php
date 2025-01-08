@@ -22,7 +22,7 @@ class User extends Authenticatable
         'email',
         'password',
         'google_id',
-        'password_reset_token',
+        'password_reset_otp',
         'password_reset_expires_at',
     ];
 

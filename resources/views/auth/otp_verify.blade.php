@@ -1,19 +1,19 @@
 @extends('auth.verification')
 @section('heading')
-    Reset Password
+    Verify OTP
 @endsection
 @section('form_section')
     <div class="form-wrapper align-items-center">
         <div class="form sign-up">
-            <form action="{{ route('forgot.password.send') }}" method="POST">
+            <form action="{{ route('verify.otp') }}" method="POST">
                 @csrf
-                <p><b>Forget your password?</b></p>
+                <p><b>OTP Verifciation</b></p>
                 <div class="input-group">
                     <i class='bx bx-mail-send'></i>
-                    <input type="email" name="email" value="{{ old('email') }}" placeholder="Email" required>
+                    <input type="text" name="otp" value="{{ old('otp') }}" placeholder="Enter the otp" required>
                 </div>
 
-                <button type="submit">Reset Password</button>
+                <button type="submit">Verify</button>
             </form>
 
         </div>

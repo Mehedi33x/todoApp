@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers\Backend;
 
-use App\Models\User;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use App\Mail\ResetPasswordMail;
 use App\Http\Controllers\Controller;
+use App\Mail\ResetPasswordMail;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Validator;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -77,22 +76,88 @@ class AuthController extends Controller
             'email' => 'required|email',
         ]);
         if ($validator->fails()) {
-            return redirect()->back();
+            return redirect()->back()->withErrors($validator)->withInput();
         } else {
             $user = User::where('email', $request->email)->first();
             if (!$user) {
                 return redirect()->back()->with('error', 'User not found');
             } else {
                 // Send reset link
-                $token = Str::random(64);
-                $user->password_reset_token = $token;
-                $user->password_reset_expires_at = now()->addMinutes(5);
+                $otp = mt_rand(100000, 999999);
+                $user->password_reset_otp = $otp;
+                $user->password_reset_expires_at = now()->addMinutes(1);
                 $user->save();
-                // Send email with link
-                Mail::to($user->email)->send(new ResetPasswordMail($token, $user->email));
-                return redirect()->route('auth.login')->with('success', 'Reset link sent to your email');
+                try {
+                    Mail::to($user->email)->send(new ResetPasswordMail($otp, $user->email));
+                } catch (\Exception $e) {
+                    return redirect()->back()->with('error', 'Failed to send email. Please try again later.');
+                }
+                return to_route('verifcation.otp')->with('success', 'Reset link sent to your email. Please check your inbox.');
             }
         }
+    }
+
+    public function verificationOtp(Request $request)
+    {
+        return view('auth.otp_verify');
+    }
+    public function verifyOtp(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'otp' => 'required|numeric|digits:6',
+        ]);
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        } else {
+
+            $user = User::where('password_reset_otp', $request->otp)->where('password_reset_expires_at', '>', now())->first();
+
+            if (!$user) {
+                return redirect()->back()->with('error', 'Invalid OTP or expired link. Please try again.');
+            } else {
+                session(['password_reset_email' => $user->email]);
+                return to_route('password.reset');
+            }
+        }
+    }
+    public function passwordReset()
+    {
+        return view('auth.reset_password');
+    }
+
+    public function resetPassword(Request $request)
+    {
+        // dd($request->all());
+        $validator = Validator::make($request->all(), [
+            'password' => 'required|min:6',
+            'confirm_password' => 'required|same:password',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        // Retrieve email from session
+        $email = session('password_reset_email');
+        // dd($email);
+        if (!$email) {
+            dd(1);return redirect()->route('password.reset')->with('error', 'Session expired. Please try again.');
+        }
+
+        $user = User::where('email', $email)->first();
+
+        if (!$user) {
+            return redirect()->back()->with('error', 'User not found.');
+        }
+
+        $user->password = bcrypt($request->password);
+        $user->password_reset_otp = null; // Clear OTP after use
+        $user->password_reset_expires_at = null; // Clear OTP expiry
+        $user->save();
+
+        // Clear session after successful update
+        session()->forget('password_reset_email');
+        return redirect()->route('auth.login')->with('success', 'Password reset successful. You can now login.');
     }
 
     // social login
